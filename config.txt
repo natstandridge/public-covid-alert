@@ -1,0 +1,4 @@
+[Twilio Credentials]
+account_sid = ''
+auth_token = '' 
+messaging_service_sid = ''
