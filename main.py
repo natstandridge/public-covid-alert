@@ -26,6 +26,8 @@ class Subscriber:
         self.total_county_cases = total_county_cases
         self.total_state_cases = total_state_cases
         self.is_increasing = is_increasing
+
+        self.real_path = os.path.dirname(os.path.realpath(__file__)) ## allows program to get path based on file location
         
     def create(self):
         ''' Adds initialized subscriber to CSV'''
@@ -39,10 +41,12 @@ class Subscriber:
     def update(self, row):
         ''' Takes subscriber data and updates their row in the CSV '''
 
-        with open(os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv'))) as inf, open(os.path.abspath(os.path.join(os.getcwd(), 'temp_subscribers.csv')), 'w') as outf:
+        with open(os.path.join(self.real_path, 'subscribers.csv')) as inf, open(os.path.join(self.real_path, 'temp_subscribers.csv'), 'w') as outf:
             reader = csv.reader(inf)
             writer = csv.writer(outf)
             for line in reader:
+                if len(line) == 0:
+                    continue
                 if line[0] == self.name:
                     print(f"Updating the following row in subscribers.csv: {row}")
                     writer.writerow(row)
@@ -53,8 +57,8 @@ class Subscriber:
 
         inf.close()
         outf.close()
-        os.remove(os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv')))
-        os.rename(os.path.abspath(os.path.join(os.getcwd(), 'temp_subscribers.csv')), os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv')))
+        os.remove(os.path.join(self.real_path, 'subscribers.csv'))
+        os.rename(os.path.join(self.real_path, 'temp_subscribers.csv'), os.path.join(self.real_path, 'subscribers.csv'))
 
     def scrape(self):
         ''' Scrapes covid.cdc.gov to update community_level and current_rate (with last_rate becoming the old current_rate) '''
@@ -129,7 +133,7 @@ class Subscriber:
     def alert(self):
         ''' Texts the subscriber with their community COVID information. '''
         config = configparser.ConfigParser()
-        config.read_file(open(os.path.abspath(os.path.join(os.getcwd(), 'config.txt'))))
+        config.read_file(open(os.path.join(self.real_path, 'config.txt')))
         account_sid = str(config.get('Twilio Credentials','account_sid')).replace("'",'')
         auth_token = str(config.get('Twilio Credentials','auth_token')).replace("'",'')
         messaging_service_sid = str(config.get('Twilio Credentials','messaging_service_sid')).replace("'",'')
@@ -168,21 +172,22 @@ class Subscriber:
 
 def main():
     subscriber_list = []
-    with open(os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv')), 'r') as f:
+    with open(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'subscribers.csv'), 'r') as f:
         csv_reader = csv.reader(f)
         for row in csv_reader: ## loads all subscriber data into subscriber_list for updating
+            if len(row) == 0: ## skip empty rows
+                continue
             if row[0] == 'Name': ## skip column names
                 continue
             subscriber_list.append(row)
     f.close()
 
-    for subscriber_data in subscriber_list:
+    for subscriber_data in subscriber_list[:1]:
         new_sub_data = []
         subscriber = Subscriber(subscriber_data[0],subscriber_data[1],subscriber_data[2],subscriber_data[3],subscriber_data[4],subscriber_data[5],subscriber_data[6],subscriber_data[7],subscriber_data[8],subscriber_data[9])
-
         new_sub_data = subscriber.scrape() ## returns the latest data in a list
         subscriber.update(new_sub_data) ## updates row in the CSV
-        subscriber.alert() ## sends the text
+        #subscriber.alert() ## sends the text
 
 if __name__ == '__main__':
     main()
