@@ -182,12 +182,12 @@ def main():
             subscriber_list.append(row)
     f.close()
 
-    for subscriber_data in subscriber_list[:1]:
+    for subscriber_data in subscriber_list:
         new_sub_data = []
         subscriber = Subscriber(subscriber_data[0],subscriber_data[1],subscriber_data[2],subscriber_data[3],subscriber_data[4],subscriber_data[5],subscriber_data[6],subscriber_data[7],subscriber_data[8],subscriber_data[9])
         new_sub_data = subscriber.scrape() ## returns the latest data in a list
         subscriber.update(new_sub_data) ## updates row in the CSV
-        #subscriber.alert() ## sends the text
+        subscriber.alert() ## sends the text
 
 if __name__ == '__main__':
     main()
