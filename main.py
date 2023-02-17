@@ -11,6 +11,7 @@ from twilio.rest import Client
 import csv
 import os
 import configparser
+from decimal import *
 
 import time
 
@@ -154,11 +155,11 @@ class Subscriber:
                 return
             message_body = f'Current COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
         elif self.is_increasing == True:
-            message_body = f'The COVID rate in your community is UP since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
+            message_body = f'The COVID rate in your community is UP {str(((Decimal(self.current_rate)/Decimal(self.last_rate)) - 1) * 100)[:4]}% since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
         elif self.is_increasing == 'Same':
             message_body = f'The COVID rate in your community has not changed since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
         else:
-            message_body = f'The COVID rate in your community is DOWN since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
+            message_body = f'The COVID rate in your community is DOWN {str(((Decimal(self.last_rate)/Decimal(self.current_rate)) - 1) * 100)[:4]}% since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
         
         try:
             message = client.messages.create(  
