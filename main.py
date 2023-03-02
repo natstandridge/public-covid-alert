@@ -72,14 +72,14 @@ class Subscriber:
 
         ## chrome options and web driver
         chrome_options = Options()
-        chrome_options.add_argument('---incognito')
-        chrome_options.add_argument('---disable-extension')
+        chrome_options.add_argument('--incognito')
+        chrome_options.add_argument('--disable-extension')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--headless')
         chrome_options.add_argument("--window-size=1920,1080") ## MUST set window size for headless to work
         chrome_options.add_argument('-–disable-gpu')
         chrome_options.add_experimental_option('useAutomationExtension', False)
-        chrome_options.add_argument('disable-infobars')
+        chrome_options.add_argument('--disable-infobars')
         chrome_options.add_experimental_option('excludeSwitches', ['enable-automation'])
 
         driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
@@ -140,7 +140,6 @@ class Subscriber:
         messaging_service_sid = str(config.get('Twilio Credentials','messaging_service_sid')).replace("'",'')
         
         client = Client(account_sid, auth_token)
-        intro = f'\n{self.name}, here is your local COVID Risk Report:\n\n'
 
         ## conditionals for message creation
         if self.is_increasing == 'First Record': ## no previous rate recorded so directionality cannot be determined
