@@ -62,7 +62,9 @@ class Subscriber:
         os.rename(os.path.join(self.real_path, 'temp_subscribers.csv'), os.path.join(self.real_path, 'subscribers.csv'))
 
     def scrape(self):
-        ''' Scrapes covid.cdc.gov to update community_level and current_rate (with last_rate becoming the old current_rate) '''
+        ''' Scrapes covid.cdc.gov to update community_level and current_rate (with last_rate becoming the old current_rate)
+            Data is released every Thursday
+        '''
         
         def dwait(element):
             return(WebDriverWait(driver, 25).until(EC.presence_of_element_located((By.XPATH, element))))
@@ -146,24 +148,23 @@ class Subscriber:
             try:
                 message = client.messages.create(  ## new user message
                     messaging_service_sid=messaging_service_sid,
-                    body=f'DO NOT REPLY TO THIS NUMBER\nYou are now signed up for COVID Alert. Please contact Nat if you would like to be removed from the contact list. Your first report will not include directionality, but every subsequent report will - Example: The COVID rate in your community is UP since the last check.',
+                    body=f'DO NOT REPLY TO THIS NUMBER\nYou are now signed up for COVID Alert. Please contact Nat if you would like to be removed from the contact list. Your first report will not include directionality, but every subsequent report will - Example: The COVID rate in your community is UP.',
                     to=f'+{self.phone_number}' 
                     )
             except:
                 print(f"Could not send new user message for {self.name}.")
-                return
-            message_body = f'Current COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
+            message_body = f'COVID rate per 100k people: {self.current_rate}\nTotal cases in your county: {self.total_county_cases}\nTotal cases in your state: {self.total_state_cases}\nGeneral county COVID level: {self.community_level}'
         elif self.is_increasing == True:
-            message_body = f'The COVID rate in your community is UP {str(((Decimal(self.current_rate)/Decimal(self.last_rate)) - 1) * 100)[:4]}% since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
+            message_body = f'The COVID rate in your community is UP {str(((Decimal(self.current_rate)/Decimal(self.last_rate)) - 1) * 100)[:4]}%.\n\nCOVID rate per 100k people: {self.current_rate}\nTotal cases in your county: {self.total_county_cases}\nTotal cases in your state: {self.total_state_cases}\nGeneral county COVID level: {self.community_level}'
         elif self.is_increasing == 'Same':
-            message_body = f'The COVID rate in your community has not changed since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
+            message_body = f'The COVID rate in your community has not changed.\n\nCOVID rate per 100k people: {self.current_rate}\nTotal cases in your county: {self.total_county_cases}\nTotal cases in your state: {self.total_state_cases}\nGeneral county COVID level: {self.community_level}'
         else:
-            message_body = f'The COVID rate in your community is DOWN {str(((Decimal(self.last_rate)/Decimal(self.current_rate)) - 1) * 100)[:4]}% since the last check.\n\nCurrent COVID rate per 100k people: {self.current_rate}\n\nTotal cases in your county: {self.total_county_cases}\n\nTotal cases in your state: {self.total_state_cases}\n\nGeneral county COVID level: {self.community_level}'
-        
+            message_body = f'The COVID rate in your community is DOWN {str(((Decimal(self.last_rate)/Decimal(self.current_rate)) - 1) * 100)[:4]}%.\n\nCOVID rate per 100k people: {self.current_rate}\nTotal cases in your county: {self.total_county_cases}\nTotal cases in your state: {self.total_state_cases}\nGeneral county COVID level: {self.community_level}'
+
         try:
             message = client.messages.create(  
                 messaging_service_sid=messaging_service_sid,
-                body=f'\n{self.name}, here is your local COVID Risk Report:\n\n{message_body}',      
+                body=f'\n{self.name}, here is your COVID Risk Report:\n\n{message_body}',      
                 to=f'+{self.phone_number}' 
             )
             print(f"{self.name} has been texted their alert.")
