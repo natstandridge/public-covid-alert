@@ -33,11 +33,10 @@ class Subscriber:
     def create(self):
         ''' Adds initialized subscriber to CSV'''
 
-        with open(os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv')), 'a') as outf:
-            csv_writer = csv.writer(outf)
+        with open(os.path.abspath(os.path.join(os.getcwd(), 'subscribers.csv')), 'a') as f:
+            csv_writer = csv.writer(f)
             print(f"Writing row {self.row}")
             csv_writer.writerow(self.row)
-        outf.close()
 
     def update(self, row):
         ''' Takes subscriber data and updates their row in the CSV '''
@@ -56,8 +55,6 @@ class Subscriber:
                 
             writer.writerows(reader)
 
-        inf.close()
-        outf.close()
         os.remove(os.path.join(self.real_path, 'subscribers.csv'))
         os.rename(os.path.join(self.real_path, 'temp_subscribers.csv'), os.path.join(self.real_path, 'subscribers.csv'))
 
@@ -181,7 +178,6 @@ def main():
             if row[0] == 'Name': ## skip column names
                 continue
             subscriber_list.append(row)
-    f.close()
 
     for subscriber_data in subscriber_list:
         new_sub_data = []
