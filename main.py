@@ -144,7 +144,7 @@ class Subscriber:
             try:
                 message = client.messages.create(  ## new user message
                     messaging_service_sid=messaging_service_sid,
-                    body=f'DO NOT REPLY TO THIS NUMBER\nYou are now signed up for COVID Alert. Please contact Nat if you would like to be removed from the contact list. Your first report will not include directionality, but every subsequent report will - Example: The COVID rate in your community is UP.',
+                    body=f'DO NOT REPLY TO THIS NUMBER\nYou are now signed up for COVID Alert. Your first report will not include directionality, but every subsequent report will - Example: The COVID rate in your community is UP.',
                     to=f'+{self.phone_number}' 
                     )
             except:
